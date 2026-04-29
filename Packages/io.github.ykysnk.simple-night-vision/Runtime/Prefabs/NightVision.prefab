@@ -173,7 +173,7 @@ Animator:
   m_GameObject: {fileID: 1514626515814672771}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 6aa1ae8dfce5fe541a9410c3837adada, type: 2}
+  m_Controller: {fileID: 9100000, guid: 6f15c383519d2ff49871d53f3c7ccf93, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bb122659f724ebf85fe095ac02dc339, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 9100000, guid: 6aa1ae8dfce5fe541a9410c3837adada, type: 2}
+  animator: {fileID: 9100000, guid: 6f15c383519d2ff49871d53f3c7ccf93, type: 2}
   layerType: 5
   deleteAttachedAnimator: 1
   pathMode: 0
@@ -542,7 +542,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cc4e5dcc7871ab749a0f70122d0603cb, type: 2}
+  - {fileID: 2100000, guid: e2810cd4eadd48741a9f3bda4f03072e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
