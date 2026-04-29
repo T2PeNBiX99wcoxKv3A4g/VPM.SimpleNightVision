@@ -62,24 +62,22 @@ Shader "yky/SimpleNightVision"
                 float4 pos : SV_POSITION;
             };
 
-            float SampleDigit(float2 uv, int digit)
+            float SampleDigit(const float2 uv, const uint digit)
             {
                 if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1) return 0;
-                float2 charUV = float2((uv.x + digit) / 12.0, uv.y);
+                const float2 charUV = float2((uv.x + digit) / 12.0, uv.y);
                 return tex2D(_MainTex, charUV).a;
             }
 
-            float PrintAdvancedValue(float2 uv, float value)
+            float PrintAdvancedValue(float2 uv, const float value)
             {
                 float res = 0;
-                float absVal = abs(value);
-                int intPart = int(absVal);
-                int decPart = int(frac(absVal) * 10.0);
+                const float absVal = abs(value);
+                const uint intPart = uint(absVal);
+                const uint decPart = uint(frac(absVal) * 10.0);
 
                 if (value < 0)
-                {
                     res += SampleDigit(uv - float2(-0.8, 0), 10);
-                }
 
                 res += SampleDigit(uv - float2(0.0, 0), (intPart / 10000) % 10);
                 res += SampleDigit(uv - float2(0.8, 0), (intPart / 1000) % 10);
@@ -92,7 +90,7 @@ Shader "yky/SimpleNightVision"
                 return res;
             }
 
-            v2f vert(appdata_base v)
+            v2f vert(const appdata_base v)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
@@ -100,73 +98,63 @@ Shader "yky/SimpleNightVision"
                 return o;
             }
 
-            float rand(float2 uv)
+            float rand(const float2 uv)
             {
                 return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
             }
 
-            fixed4 frag(v2f i) : SV_Target
+            fixed4 frag(const v2f i) : SV_Target
             {
                 if (_VRChatCameraMode != 0.0 || _VRChatMirrorMode != 0.0 || _VRChatFaceMirrorMode != 0.0)
                     discard;
 
-                fixed4 sceneCol = tex2Dproj(_GrabTexture, i.grabPos);
-                float lum = dot(sceneCol.rgb, float3(0.3, 0.59, 0.11));
-                float boost = max(_MinLight - lum, 0) * _Brightness;
+                const fixed4 sceneCol = tex2Dproj(_GrabTexture, i.grabPos);
+                const float lum = dot(sceneCol.rgb, float3(0.3, 0.59, 0.11));
+                const float boost = max(_MinLight - lum, 0) * _Brightness;
 
-                sceneCol.rgb += boost;
+                const float3 nvBase = sceneCol.rgb + boost;
 
-                float2 uv = i.grabPos.xy / i.grabPos.w;
+                const float2 uv = i.grabPos.xy / i.grabPos.w;
+                const float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+                const float depth = Linear01Depth(rawDepth);
 
-                float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
-                float depth = Linear01Depth(rawDepth);
+                const float skyGlow = smoothstep(0.1, 1.0, depth) * 0.15;
+                const float depthR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv + float2(0.001, 0)));
+                const float outlineD = saturate(abs(depth - depthR) * _OutlineSharpness);
+                const float3 colR = tex2Dproj(_GrabTexture, i.grabPos + float4(0.002, 0, 0, 0)).rgb;
+                const float outlineC = saturate(distance(sceneCol.rgb, colR) * 5.0);
+                const float sweep = step(frac(depth - _Time.y * _ScanSpeed), _ScanWidth) * (1.0 - depth * 0.5);
 
-                float skyGlow = smoothstep(0.1, 1.0, depth) * 0.15;
-                sceneCol.rgb += skyGlow * _NVColor.rgb;
+                const float3 effects = (skyGlow + outlineD + outlineC + sweep) * _NVColor.rgb;
 
-                float depthR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv + float2(0.001, 0)));
-                float outlineD = saturate(abs(depth - depthR) * _OutlineSharpness);
+                const float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise * (1.0 + depth * 2.0);
 
-                float3 colR = tex2Dproj(_GrabTexture, i.grabPos + float4(0.002, 0, 0, 0)).rgb;
-                float outlineC = saturate(distance(sceneCol.rgb, colR) * 5.0);
-
-                float sweep = step(frac(depth - _Time.y * _ScanSpeed), _ScanWidth);
-                sweep *= (1.0 - depth * 0.5);
-
-                sceneCol.rgb += (outlineD + outlineC + sweep) * _NVColor.rgb;
-
-                float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise * (1.0 + depth * 2.0);
-                sceneCol.rgb += dynamicNoise * _NVColor.rgb;
+                float3 finalEnv = saturate(nvBase + effects + (dynamicNoise * _NVColor.rgb));
 
                 #ifdef MASK_ON
                 float2 maskCenter = float2(0.5, 0.5);
-
                 #if defined(USING_STEREO_MATRICES)
                 float eyeOffset = (unity_StereoEyeIndex == 0) ? -_VROffset : _VROffset;
                 maskCenter.x += eyeOffset;
                 #endif
-
-                float2 distVec = uv - maskCenter;
+                float dist = length(uv - maskCenter);
                 #ifdef PERFECT_CIRCLE_ON
-                distVec.x *= (_ScreenParams.x / _ScreenParams.y);
+                dist = length((uv - maskCenter) * float2(_ScreenParams.x / _ScreenParams.y, 1.0));
                 #endif
-                float dist = length(distVec);
-                float mask = smoothstep(_VignetteRadius, _VignetteRadius - _VignetteSoftness, dist);
-                sceneCol.rgb *= mask;
+                const float mask = smoothstep(_VignetteRadius, _VignetteRadius - _VignetteSoftness, dist);
+                finalEnv *= mask;
                 #endif
 
-                float2 uiPos = (uv - float2(_UIPosX, _UIPosY)) * _UIScale;
+                const float2 uiPos = (uv - float2(_UIPosX, _UIPosY)) * _UIScale;
                 float uiAlpha = 0;
 
-                float3 pos = _WorldSpaceCameraPos.xyz;
+                const float3 pos = _WorldSpaceCameraPos.xyz;
 
                 uiAlpha += PrintAdvancedValue(uiPos, pos.x);
                 uiAlpha += PrintAdvancedValue(uiPos - float2(0, 1.5), pos.y);
                 uiAlpha += PrintAdvancedValue(uiPos - float2(0, 3.0), pos.z);
 
-                sceneCol.rgb += uiAlpha * _NVColor.rgb * 2.0;
-
-                return sceneCol;
+                return fixed4(finalEnv + (uiAlpha * _NVColor.rgb * 2.0), 1.0);
             }
             ENDCG
         }
