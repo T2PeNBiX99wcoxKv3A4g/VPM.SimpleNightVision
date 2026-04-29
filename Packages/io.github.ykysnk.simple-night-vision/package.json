@@ -1,0 +1,16 @@
+{
+  "name": "io.github.ykysnk.simple-night-vision",
+  "displayName": "Simple Night Vision",
+  "version": "0.0.1",
+  "description": "Simple Night Vision",
+  "gitDependencies": {},
+  "vpmDependencies": {},
+  "author": {
+    "name": "yukiyosanako / \u3086\u304d\u3088\u3055\u306a\u3053",
+    "email": "github.qszdy@aleeas.com",
+    "url": "https://github.com/T2PeNBiX99wcoxKv3A4g"
+  },
+  "legacyFolders": {},
+  "legacyFiles": {},
+  "localPath": "M:\\VRChatProjects\\VPM.SimpleNightVision\\Packages\\io.github.ykysnk.simple-night-vision"
+}
