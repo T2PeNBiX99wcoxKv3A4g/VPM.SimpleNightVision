@@ -1,14 +1,18 @@
 {
   "name": "io.github.ykysnk.simple-night-vision.Editor",
+  "rootNamespace": "",
   "references": [
     "io.github.ykysnk.simple-night-vision"
   ],
-  "includePlatforms": [],
+  "includePlatforms": [
+    "Editor"
+  ],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
-  "autoReferenced": true,
   "overrideReferences": false,
   "precompiledReferences": [],
+  "autoReferenced": false,
   "defineConstraints": [],
-  "optionalUnityReferences": []
+  "versionDefines": [],
+  "noEngineReferences": false
 }
