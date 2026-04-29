@@ -2,16 +2,21 @@ Shader "yky/SimpleNightVision"
 {
     Properties
     {
+        _NVColor ("Night Vision Color", Color) = (0, 1, 0.2, 1)
+        _MainTex ("UI Atlas (0-9)", 2D) = "white" {}
+        _UIPosX ("UI Position X", Range(0, 1)) = 0.7
+        _UIPosY ("UI Position Y", Range(0, 1)) = 0.1
+        _UIScale ("UI Scale", Range(1, 100)) = 45.0
         _Brightness ("Brightness Boost", Range(0, 5)) = 1.5
         _MinLight ("Min Visibility Threshold", Range(0, 1)) = 0.2
         _Noise ("Noise", Range(0, 1)) = 0.02
         _ScanSpeed ("Scan Speed", Range(0, 5)) = 1.0
         _ScanWidth ("Scan Width", Range(0, 0.1)) = 0.02
         _OutlineSharpness ("Outline Sharpness", Range(0, 50)) = 10.0
-        _NVColor ("Night Vision Color", Color) = (0, 1, 0.2, 1)
         _VignetteRadius ("Vignette Radius", Range(0, 1)) = 0.5
         _VignetteSoftness ("Vignette Softness", Range(0, 1)) = 0.4
         [Toggle(PERFECT_CIRCLE_ON)] _PerfectCircle ("Perfect Circle", Float) = 0
+        [Toggle(MASK_ON)] _Mask ("Mask", Float) = 1
         _VROffset ("VR Eye Offset", Range(-0.1, 0.1)) = 0.01
     }
     SubShader
@@ -35,15 +40,21 @@ Shader "yky/SimpleNightVision"
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature PERFECT_CIRCLE_ON
+            #pragma shader_feature MASK_ON
             #include "UnityCG.cginc"
 
-            float _VRChatCameraMode;
-            float _VRChatMirrorMode;
-            float _VRChatFaceMirrorMode;
-            float _VignetteRadius;
-            float _VignetteSoftness;
+            sampler2D _GrabTexture, _CameraDepthTexture, _MainTex;
+            float _VRChatCameraMode, _VRChatMirrorMode, _VRChatFaceMirrorMode;
+            float _VignetteRadius, _VignetteSoftness;
             float _VROffset;
             float _PerfectCircle;
+            float _Brightness;
+            float _MinLight;
+            float _Noise;
+            float _ScanSpeed, _ScanWidth;
+            float _OutlineSharpness;
+            float4 _NVColor;
+            float _UIPosX, _UIPosY, _UIScale;
 
             struct v2f
             {
@@ -51,15 +62,35 @@ Shader "yky/SimpleNightVision"
                 float4 pos : SV_POSITION;
             };
 
-            sampler2D _GrabTexture;
-            sampler2D _CameraDepthTexture;
-            float _Brightness;
-            float _MinLight;
-            float _Noise;
-            float _ScanSpeed;
-            float _ScanWidth;
-            float _OutlineSharpness;
-            float4 _NVColor;
+            float SampleDigit(float2 uv, int digit)
+            {
+                if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1) return 0;
+                float2 charUV = float2((uv.x + digit) / 12.0, uv.y);
+                return tex2D(_MainTex, charUV).a;
+            }
+
+            float PrintAdvancedValue(float2 uv, float value)
+            {
+                float res = 0;
+                float absVal = abs(value);
+                int intPart = int(absVal);
+                int decPart = int(frac(absVal) * 10.0);
+
+                if (value < 0)
+                {
+                    res += SampleDigit(uv - float2(-0.8, 0), 10);
+                }
+
+                res += SampleDigit(uv - float2(0.0, 0), (intPart / 10000) % 10);
+                res += SampleDigit(uv - float2(0.8, 0), (intPart / 1000) % 10);
+                res += SampleDigit(uv - float2(1.6, 0), (intPart / 100) % 10);
+                res += SampleDigit(uv - float2(2.4, 0), (intPart / 10) % 10);
+                res += SampleDigit(uv - float2(3.2, 0), intPart % 10);
+                res += SampleDigit(uv - float2(4.0, 0), 11);
+                res += SampleDigit(uv - float2(4.8, 0), decPart);
+
+                return res;
+            }
 
             v2f vert(appdata_base v)
             {
@@ -107,6 +138,7 @@ Shader "yky/SimpleNightVision"
                 float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise * (1.0 + depth * 2.0);
                 sceneCol.rgb += dynamicNoise * _NVColor.rgb;
 
+                #ifdef MASK_ON
                 float2 maskCenter = float2(0.5, 0.5);
 
                 #if defined(USING_STEREO_MATRICES)
@@ -121,6 +153,18 @@ Shader "yky/SimpleNightVision"
                 float dist = length(distVec);
                 float mask = smoothstep(_VignetteRadius, _VignetteRadius - _VignetteSoftness, dist);
                 sceneCol.rgb *= mask;
+                #endif
+
+                float2 uiPos = (uv - float2(_UIPosX, _UIPosY)) * _UIScale;
+                float uiAlpha = 0;
+
+                float3 pos = _WorldSpaceCameraPos.xyz;
+
+                uiAlpha += PrintAdvancedValue(uiPos, pos.x);
+                uiAlpha += PrintAdvancedValue(uiPos - float2(0, 1.5), pos.y);
+                uiAlpha += PrintAdvancedValue(uiPos - float2(0, 3.0), pos.z);
+
+                sceneCol.rgb += uiAlpha * _NVColor.rgb * 2.0;
 
                 return sceneCol;
             }
