@@ -87,37 +87,37 @@ AnimatorController:
     m_DefaultFloat: 1
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: IsLocal
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: NightVision/On
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: NightVision/BrightNessBoost
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: NightVision/MinVisibilityThreshold
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: NightVision/VREyeOffset
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: NightVision
@@ -140,7 +140,7 @@ BlendTree:
   m_Name: Local Only
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 2f042cc63c22aa14c8831d3f38f78de3, type: 2}
+    m_Motion: {fileID: 7400000, guid: d35fb9337efd17548aecc3f474238a1c, type: 2}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -171,7 +171,7 @@ BlendTree:
   m_Name: Bright Ness Boost
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 3f2c42dd2e551d640ac01b9e85d54440, type: 2}
+    m_Motion: {fileID: 7400000, guid: 8a486c0e231c82945b21209624bc26c1, type: 2}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -179,7 +179,7 @@ BlendTree:
     m_DirectBlendParameter: __ModularAvatarInternal/One
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: d862b89002f57db4ebbd1c8f26e2fd61, type: 2}
+    m_Motion: {fileID: 7400000, guid: 9e18ca7975576eb4c991828d36bacbe1, type: 2}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -202,7 +202,7 @@ BlendTree:
   m_Name: VR Eye Offset
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: d18668cead98458488fb8e1395b99425, type: 2}
+    m_Motion: {fileID: 7400000, guid: 12887bed4b8d4fb4a8a608a2aac78090, type: 2}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -210,7 +210,7 @@ BlendTree:
     m_DirectBlendParameter: __ModularAvatarInternal/One
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 19a6f42c6877998469e57b87a193fad9, type: 2}
+    m_Motion: {fileID: 7400000, guid: c291c3aac1d62c047851084288ee0dce, type: 2}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -233,7 +233,7 @@ BlendTree:
   m_Name: On / Off
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 2f042cc63c22aa14c8831d3f38f78de3, type: 2}
+    m_Motion: {fileID: 7400000, guid: d35fb9337efd17548aecc3f474238a1c, type: 2}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -241,7 +241,7 @@ BlendTree:
     m_DirectBlendParameter: __ModularAvatarInternal/One
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: a50c13435544e4740bc4700bebb9855c, type: 2}
+    m_Motion: {fileID: 7400000, guid: e8b5852bffcec0c4ba90f28c535411ac, type: 2}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -264,7 +264,7 @@ BlendTree:
   m_Name: Min Visibility Threshold
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 931b52fa53c592a4a9d54ca05834ca90, type: 2}
+    m_Motion: {fileID: 7400000, guid: 15a8fbc5ca5539f4994b3358576dcad0, type: 2}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -272,7 +272,7 @@ BlendTree:
     m_DirectBlendParameter: __ModularAvatarInternal/One
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 166326644fc3e11489096857d673cdac, type: 2}
+    m_Motion: {fileID: 7400000, guid: 7f88e952ef96452429ab9cffe5a65ed8, type: 2}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
