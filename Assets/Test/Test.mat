@@ -36,7 +36,7 @@ Material:
     - _Noise: 0.02
     - _OutlineSharpness: 10
     - _PerfectCircle: 0
-    - _ScanSpeed: 1
+    - _ScanSpeed: 0.5
     - _ScanWidth: 0.02
     - _UIPosX: 0.7
     - _UIPosY: 0.1
@@ -46,5 +46,4 @@ Material:
     - _VignetteSoftness: 0.4
     m_Colors:
     - _NVColor: {r: 0, g: 1, b: 0.19999996, a: 1}
-    - _UIPosition: {r: 0.7, g: 0.1, b: 45, a: 0}
   m_BuildTextureStacks: []
