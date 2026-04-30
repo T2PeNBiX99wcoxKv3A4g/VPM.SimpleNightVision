@@ -10,7 +10,7 @@ Shader "yky/SimpleNightVision"
         _Brightness ("Brightness Boost", Range(0, 5)) = 1.5
         _MinLight ("Min Visibility Threshold", Range(0, 1)) = 0.2
         _Noise ("Noise", Range(0, 1)) = 0.02
-        _ScanSpeed ("Scan Speed", Range(0, 5)) = 1.0
+        _ScanSpeed ("Scan Speed", Range(0, 5)) = 0.5
         _ScanWidth ("Scan Width", Range(0, 0.1)) = 0.02
         _OutlineSharpness ("Outline Sharpness", Range(0, 50)) = 10.0
         _VignetteRadius ("Vignette Radius", Range(0, 1)) = 0.5
@@ -43,7 +43,8 @@ Shader "yky/SimpleNightVision"
             #pragma shader_feature MASK_ON
             #include "UnityCG.cginc"
 
-            sampler2D _GrabTexture, _CameraDepthTexture, _MainTex;
+            sampler2D _GrabTexture, _MainTex;
+            UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
             float _VRChatCameraMode, _VRChatMirrorMode, _VRChatFaceMirrorMode;
             float _VignetteRadius, _VignetteSoftness;
             float _VROffset;
@@ -110,39 +111,39 @@ Shader "yky/SimpleNightVision"
 
                 const fixed4 sceneCol = tex2Dproj(_GrabTexture, i.grabPos);
                 const float lum = dot(sceneCol.rgb, float3(0.3, 0.59, 0.11));
-                const float boost = max(_MinLight - lum, 0) * _Brightness;
-
-                const float3 nvBase = sceneCol.rgb + boost;
 
                 const float2 uv = i.grabPos.xy / i.grabPos.w;
-                const float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+                const float rawDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv, 0, 0));
                 const float depth = Linear01Depth(rawDepth);
 
-                const float skyGlow = smoothstep(0.1, 1.0, depth) * 0.15;
-                const float depthR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv + float2(0.001, 0)));
+                const float3 depthBase = (1.0 - depth) * _NVColor.rgb * _MinLight;
+                const float3 enhancedScene = sceneCol.rgb * _Brightness;
+                const float3 blendedEnv = lerp(depthBase, enhancedScene, saturate(lum * 2.0));
+
+                const float rawDepthR = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture,
+                                                                 float4(uv + float2(0.001, 0), 0, 0));
+                const float depthR = Linear01Depth(rawDepthR);
                 const float outlineD = saturate(abs(depth - depthR) * _OutlineSharpness);
-                const float3 colR = tex2Dproj(_GrabTexture, i.grabPos + float4(0.002, 0, 0, 0)).rgb;
-                const float outlineC = saturate(distance(sceneCol.rgb, colR) * 5.0);
-                const float sweep = step(frac(depth - _Time.y * _ScanSpeed), _ScanWidth) * (1.0 - depth * 0.5);
+                const float sweepRaw = step(frac(depth - _Time.y * _ScanSpeed), _ScanWidth);
+                const float sweepFade = smoothstep(0.0, 0.05, depth) * (1.0 - depth);
+                const float sweep = sweepRaw * sweepFade * 0.5;
 
-                const float3 effects = (skyGlow + outlineD + outlineC + sweep) * _NVColor.rgb;
+                float3 finalEnv = blendedEnv + (outlineD + sweep) * _NVColor.rgb;
 
-                const float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise * (1.0 + depth * 2.0);
-
-                float3 finalEnv = saturate(nvBase + effects + (dynamicNoise * _NVColor.rgb));
+                const float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise;
+                finalEnv = saturate(finalEnv + dynamicNoise * _NVColor.rgb);
 
                 #ifdef MASK_ON
                 float2 maskCenter = float2(0.5, 0.5);
                 #if defined(USING_STEREO_MATRICES)
-                float eyeOffset = (unity_StereoEyeIndex == 0) ? -_VROffset : _VROffset;
+                const float eyeOffset = (unity_StereoEyeIndex == 0) ? -_VROffset : _VROffset;
                 maskCenter.x += eyeOffset;
                 #endif
                 float dist = length(uv - maskCenter);
                 #ifdef PERFECT_CIRCLE_ON
                 dist = length((uv - maskCenter) * float2(_ScreenParams.x / _ScreenParams.y, 1.0));
                 #endif
-                const float mask = smoothstep(_VignetteRadius, _VignetteRadius - _VignetteSoftness, dist);
-                finalEnv *= mask;
+                finalEnv *= smoothstep(_VignetteRadius, _VignetteRadius - _VignetteSoftness, dist);
                 #endif
 
                 const float2 uiPos = (uv - float2(_UIPosX, _UIPosY)) * _UIScale;
