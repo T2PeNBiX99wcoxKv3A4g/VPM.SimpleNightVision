@@ -1,8 +1,8 @@
 {
   "name": "io.github.ykysnk.simple-night-vision",
   "displayName": "Simple Night Vision",
-  "version": "0.1.6",
-  "description": "Simple Night Vision",
+  "version": "0.1.7",
+  "description": "Simple night vision shader.",
   "gitDependencies": {},
   "vpmDependencies": {},
   "author": {
