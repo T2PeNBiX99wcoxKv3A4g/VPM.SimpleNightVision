@@ -7,16 +7,17 @@ Shader "yky/SimpleNightVision"
         _UIPosX ("UI Position X", Range(0, 1)) = 0.7
         _UIPosY ("UI Position Y", Range(0, 1)) = 0.1
         _UIScale ("UI Scale", Range(1, 100)) = 45.0
-        _Brightness ("Brightness Boost", Range(0, 5)) = 1.5
-        _MinLight ("Min Visibility Threshold", Range(0, 1)) = 0.2
+        _Brightness ("Brightness Gain", Range(0, 5)) = 1.2
+        _MinLight ("Darkness Compensation", Range(0, 1)) = 0.2
         _Noise ("Noise", Range(0, 1)) = 0.02
+        [Toggle(SCAN_ON)] _Scan ("Enable Scanning", Float) = 1
         _ScanSpeed ("Scan Speed", Range(0, 5)) = 0.5
         _ScanWidth ("Scan Width", Range(0, 0.1)) = 0.02
         _OutlineSharpness ("Outline Sharpness", Range(0, 50)) = 10.0
+        [Toggle(MASK_ON)] _Mask ("Enable Vignette Mask", Float) = 1
+        [Toggle(PERFECT_CIRCLE_ON)] _PerfectCircle ("Perfect Circle Mask", Float) = 0
         _VignetteRadius ("Vignette Radius", Range(0, 1)) = 0.5
         _VignetteSoftness ("Vignette Softness", Range(0, 1)) = 0.4
-        [Toggle(PERFECT_CIRCLE_ON)] _PerfectCircle ("Perfect Circle", Float) = 0
-        [Toggle(MASK_ON)] _Mask ("Mask", Float) = 1
         _VROffset ("VR Eye Offset", Range(-0.1, 0.1)) = 0.01
     }
     SubShader
@@ -41,6 +42,7 @@ Shader "yky/SimpleNightVision"
             #pragma fragment frag
             #pragma shader_feature PERFECT_CIRCLE_ON
             #pragma shader_feature MASK_ON
+            #pragma shader_feature SCAN_ON
             #include "UnityCG.cginc"
 
             sampler2D _GrabTexture, _MainTex;
@@ -115,8 +117,8 @@ Shader "yky/SimpleNightVision"
                 const float2 uv = i.grabPos.xy / i.grabPos.w;
                 const float rawDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv, 0, 0));
                 const float depth = Linear01Depth(rawDepth);
-
-                const float3 depthBase = (1.0 - depth) * _NVColor.rgb * _MinLight;
+                const float darkness = saturate(1.0 - lum * 3.0);
+                const float3 depthBase = (0.1 + (1.0 - depth) * 0.9) * _NVColor.rgb * _MinLight * darkness;
                 const float3 enhancedScene = sceneCol.rgb * _Brightness;
                 const float3 blendedEnv = lerp(depthBase, enhancedScene, saturate(lum * 2.0));
 
@@ -124,11 +126,15 @@ Shader "yky/SimpleNightVision"
                                                                  float4(uv + float2(0.001, 0), 0, 0));
                 const float depthR = Linear01Depth(rawDepthR);
                 const float outlineD = saturate(abs(depth - depthR) * _OutlineSharpness);
+                #ifdef SCAN_ON
                 const float sweepRaw = step(frac(depth - _Time.y * _ScanSpeed), _ScanWidth);
                 const float sweepFade = smoothstep(0.0, 0.05, depth) * (1.0 - depth);
                 const float sweep = sweepRaw * sweepFade * 0.5;
 
                 float3 finalEnv = blendedEnv + (outlineD + sweep) * _NVColor.rgb;
+                #else
+                float3 finalEnv = blendedEnv + outlineD * _NVColor.rgb;
+                #endif
 
                 const float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise;
                 finalEnv = saturate(finalEnv + dynamicNoise * _NVColor.rgb);
