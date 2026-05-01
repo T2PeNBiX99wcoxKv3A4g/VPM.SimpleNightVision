@@ -8,6 +8,7 @@ Shader "yky/SimpleNightVision"
         _UIPosY ("UI Position Y", Range(0, 1)) = 0.1
         _UIScale ("UI Scale", Range(1, 100)) = 45.0
         _Brightness ("Brightness Gain", Range(0, 5)) = 1.2
+        _Gamma_Adjust ("Gamma", Range(-5, 5)) = 0
         _MinLight ("Darkness Compensation", Range(0, 1)) = 0.2
         _Noise ("Noise", Range(0, 1)) = 0.02
         [Toggle(SCAN_ON)] _Scan ("Enable Scanning", Float) = 1
@@ -51,13 +52,12 @@ Shader "yky/SimpleNightVision"
             float _VignetteRadius, _VignetteSoftness;
             float _VROffset;
             float _PerfectCircle;
-            float _Brightness;
-            float _MinLight;
+            float _Brightness, _Gamma_Adjust, _MinLight, _OutlineSharpness;
             float _Noise;
             float _ScanSpeed, _ScanWidth;
-            float _OutlineSharpness;
             float4 _NVColor;
             float _UIPosX, _UIPosY, _UIScale;
+            float4 _CameraDepthTexture_TexelSize;
 
             struct v2f
             {
@@ -111,29 +111,40 @@ Shader "yky/SimpleNightVision"
                 if (_VRChatCameraMode != 0.0 || _VRChatMirrorMode != 0.0 || _VRChatFaceMirrorMode != 0.0)
                     discard;
 
-                const fixed4 sceneCol = tex2Dproj(_GrabTexture, i.grabPos);
-                const float lum = dot(sceneCol.rgb, float3(0.3, 0.59, 0.11));
-
                 const float2 uv = i.grabPos.xy / i.grabPos.w;
-                const float rawDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv, 0, 0));
-                const float depth = Linear01Depth(rawDepth);
-                const float darkness = saturate(1.0 - lum * 3.0);
-                const float3 depthBase = (0.1 + (1.0 - depth) * 0.9) * _NVColor.rgb * _MinLight * darkness;
-                const float3 enhancedScene = sceneCol.rgb * _Brightness;
-                const float3 blendedEnv = lerp(depthBase, enhancedScene, saturate(lum * 2.0));
+                const fixed4 sceneCol = tex2Dproj(_GrabTexture, i.grabPos);
 
-                const float rawDepthR = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture,
-                                                                 float4(uv + float2(0.001, 0), 0, 0));
-                const float depthR = Linear01Depth(rawDepthR);
-                const float outlineD = saturate(abs(depth - depthR) * _OutlineSharpness);
+                const float gammaVal = exp(-_Gamma_Adjust);
+                const float3 enhancedScene = pow(saturate(sceneCol.rgb), gammaVal) * _Brightness;
+
+                const float2 dUV = _CameraDepthTexture_TexelSize.xy;
+                const float dC = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv, 0, 0)));
+                const float dN = Linear01Depth(
+                    SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv + float2(0, dUV.y), 0, 0)));
+                const float dS = Linear01Depth(
+                    SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv - float2(0, dUV.y), 0, 0)));
+                const float dE = Linear01Depth(
+                    SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv + float2(dUV.x, 0), 0, 0)));
+                const float dW = Linear01Depth(
+                    SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv - float2(dUV.x, 0), 0, 0)));
+
+                const float edge = abs(dN + dS + dE + dW - 4.0 * dC);
+                const float outline = saturate(edge * _OutlineSharpness * 100.0);
+
+                const float lum = dot(sceneCol.rgb, float3(0.3, 0.59, 0.11));
+                const float darkness = saturate(1.0 - lum * 3.0);
+
+                const float3 depthBase = (1.0 - dC) * _NVColor.rgb * _MinLight * darkness;
+
+                float3 finalEnv = lerp(depthBase, enhancedScene, saturate(lum * 2.0));
+                finalEnv += outline * _NVColor.rgb * 2.0;
+
                 #ifdef SCAN_ON
-                const float sweepRaw = step(frac(depth - _Time.y * _ScanSpeed), _ScanWidth);
-                const float sweepFade = smoothstep(0.0, 0.05, depth) * (1.0 - depth);
+                const float sweepRaw = step(frac(dC - _Time.y * _ScanSpeed), _ScanWidth);
+                const float sweepFade = smoothstep(0.0, 0.05, dC) * (1.0 - dC);
                 const float sweep = sweepRaw * sweepFade * 0.5;
 
-                float3 finalEnv = blendedEnv + (outlineD + sweep) * _NVColor.rgb;
-                #else
-                float3 finalEnv = blendedEnv + outlineD * _NVColor.rgb;
+                finalEnv += sweep * _NVColor.rgb;
                 #endif
 
                 const float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise;
