@@ -8,7 +8,7 @@ Shader "yky/SimpleNightVision"
         _UIPosY ("UI Position Y", Range(0, 1)) = 0.1
         _UIScale ("UI Scale", Range(1, 100)) = 45.0
         _Brightness ("Brightness Gain", Range(0, 5)) = 1.2
-        _Gamma_Adjust ("Gamma", Range(-5, 5)) = 0
+        _Gamma ("Gamma", Range(-5, 5)) = 0
         _MinLight ("Darkness Compensation", Range(0, 1)) = 0.2
         _Noise ("Noise", Range(0, 1)) = 0.02
         [Toggle(SCAN_ON)] _Scan ("Enable Scanning", Float) = 1
@@ -52,7 +52,7 @@ Shader "yky/SimpleNightVision"
             float _VignetteRadius, _VignetteSoftness;
             float _VROffset;
             float _PerfectCircle;
-            float _Brightness, _Gamma_Adjust, _MinLight, _OutlineSharpness;
+            float _Brightness, _Gamma, _MinLight, _OutlineSharpness;
             float _Noise;
             float _ScanSpeed, _ScanWidth;
             float4 _NVColor;
@@ -114,7 +114,7 @@ Shader "yky/SimpleNightVision"
                 const float2 uv = i.grabPos.xy / i.grabPos.w;
                 const fixed4 sceneCol = tex2Dproj(_GrabTexture, i.grabPos);
 
-                const float gammaVal = exp(-_Gamma_Adjust);
+                const float gammaVal = exp(-_Gamma);
                 const float3 enhancedScene = pow(saturate(sceneCol.rgb), gammaVal) * _Brightness;
 
                 const float2 dUV = _CameraDepthTexture_TexelSize.xy;
