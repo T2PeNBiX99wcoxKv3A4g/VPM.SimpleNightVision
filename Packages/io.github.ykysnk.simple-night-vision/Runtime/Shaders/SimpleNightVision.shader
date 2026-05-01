@@ -144,7 +144,7 @@ Shader "yky/SimpleNightVision"
                 const float sweepFade = smoothstep(0.0, 0.05, dC) * (1.0 - dC);
                 const float sweep = sweepRaw * sweepFade * 0.5;
 
-                finalEnv += sweep * _NVColor.rgb;
+                finalEnv = saturate(finalEnv + sweep * _NVColor.rgb);
                 #endif
 
                 const float dynamicNoise = (rand(uv + _Time.y) - 0.5) * _Noise;
