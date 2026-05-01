@@ -75,6 +75,14 @@ BlendTree:
     m_DirectBlendParameter: __ModularAvatarInternal/One
     m_Mirror: 0
   - serializedVersion: 2
+    m_Motion: {fileID: 4717023871202119739}
+    m_Threshold: 0
+    m_Position: {x: 0, y: 0}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: __ModularAvatarInternal/One
+    m_Mirror: 0
+  - serializedVersion: 2
     m_Motion: {fileID: 7074847622872212785}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
@@ -435,6 +443,12 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
+  - m_Name: NightVision/Gamma
+    m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
   - m_Name: NightVision/DarknessCompensation
     m_Type: 1
     m_DefaultFloat: 0
@@ -595,6 +609,37 @@ BlendTree:
     m_DirectBlendParameter: __ModularAvatarInternal/One
     m_Mirror: 0
   m_BlendParameter: NightVision/BrightnessGain
+  m_BlendParameterY: Blend
+  m_MinThreshold: 0
+  m_MaxThreshold: 1
+  m_UseAutomaticThresholds: 1
+  m_NormalizedBlendValues: 0
+  m_BlendType: 0
+--- !u!206 &4717023871202119739
+BlendTree:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Gamma
+  m_Childs:
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400000, guid: c359d83f3c554b246a043516a82509ce, type: 2}
+    m_Threshold: 0
+    m_Position: {x: 0, y: 0}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: __ModularAvatarInternal/One
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400000, guid: 5eb9a45281fb0a542850b2af7ed8d668, type: 2}
+    m_Threshold: 1
+    m_Position: {x: 0, y: 0}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: __ModularAvatarInternal/One
+    m_Mirror: 0
+  m_BlendParameter: NightVision/Gamma
   m_BlendParameterY: Blend
   m_MinThreshold: 0
   m_MaxThreshold: 1
