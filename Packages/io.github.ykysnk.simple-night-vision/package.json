@@ -1,7 +1,8 @@
 {
   "name": "io.github.ykysnk.simple-night-vision",
   "displayName": "Simple Night Vision",
-  "version": "0.2.2",
+  "version": "0.2.3",
+  "unity": "2022.3",
   "description": "Simple night vision shader.",
   "gitDependencies": {},
   "vpmDependencies": {},
@@ -12,5 +13,6 @@
   },
   "legacyFolders": {},
   "legacyFiles": {},
-  "localPath": "M:\\VRChatProjects\\VPM.SimpleNightVision\\Packages\\io.github.ykysnk.simple-night-vision"
+  "license": "MIT",
+  "vrc-get": {}
 }
