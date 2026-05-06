@@ -1,7 +1,7 @@
 {
   "name": "io.github.ykysnk.simple-night-vision",
   "displayName": "Simple Night Vision",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "unity": "2022.3",
   "description": "Simple night vision shader.",
   "gitDependencies": {},
@@ -13,6 +13,6 @@
   },
   "legacyFolders": {},
   "legacyFiles": {},
-  "license": "MIT",
-  "vrc-get": {}
+  "changelogUrl": "https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/blob/main/CHANGELOG.md",
+  "license": "MIT"
 }
