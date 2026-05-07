@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.6](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/compare/0.2.5..0.2.6) - 2026-05-07
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump package version to 0.2.6 and adjust `release.yml` indentation - ([18efdeb](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/commit/18efdebe967ec065b3b94ef3bcb755fd8ba3a66a))
+
+### Action
+
+- Update `CHANGELOG.md` - ([14d6a6e](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/commit/14d6a6ef0100ad2ce7091d1ed68c1db7066a5101))
+
+
 ## [0.2.5](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/compare/0.2.4..0.2.5) - 2026-05-06
 
 ### 🐛 Bug Fixes
