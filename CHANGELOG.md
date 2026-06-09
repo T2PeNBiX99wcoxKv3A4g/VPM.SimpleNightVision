@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.7](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/compare/0.2.6..0.2.7) - 2026-06-09
+
+### 🐛 Bug Fixes
+
+- Add `VRCFallback` tag to `SimpleNightVision.shader` - ([8c69271](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/commit/8c6927158f33e8d4afd537c8927984a47c99d0c5))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump package version to 0.2.7 - ([6aac9ba](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/commit/6aac9bacc2cc571f515cd9e8d08f7d46736049e3))
+- Bump dependencies in `vpm-manifest.json` - ([a878803](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/commit/a878803120666439b39cdb8135b99ba4752180b7))
+
+### Action
+
+- Update `CHANGELOG.md` - ([a8eac9f](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/commit/a8eac9fd78cc980a4705d7087d7528129538814c))
+
+
 ## [0.2.6](https://github.com/T2PeNBiX99wcoxKv3A4g/VPM.SimpleNightVision/compare/0.2.5..0.2.6) - 2026-05-07
 
 ### ⚙️ Miscellaneous Tasks
