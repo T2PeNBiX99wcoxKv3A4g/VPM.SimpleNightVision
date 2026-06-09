@@ -25,7 +25,7 @@ Shader "yky/SimpleNightVision"
     {
         Tags
         {
-            "Queue"="Transparent+100" "RenderType"="Transparent"
+            "Queue"="Transparent+100" "RenderType"="Transparent" "VRCFallback" = "Hidden"
         }
         Cull Front
         ZWrite Off
